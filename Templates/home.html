@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+{% load static %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <div class="container" style="margin-top: 75px; overflow: hidden">
+    <div class="container" style="width: 75%;" id="post_form">
+      <form enctype="multipart/form-data" id ='post_upload' method="POST" action="post">
+        <h4 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+          Add a post and Be Social
+        </h4>
+        {% csrf_token %}
+        <input class="form-control" placeholder="Caption" type="text" id= "post_caption" name="caption">
+        <input class="form-control" placeholder="Upload Image" type="file" id="post_image" name="image">
+        <input type="submit" class="btn btn-primary" value="Post">
+        <!--<input type = "button" class="btn btn-primary" onclick="post()" value="Post">-->
+      </form>
+    </div>
+    {% for i in posts %}
+    <div class="container shadow-sm p-3 mb-5 bg-white rounded" style="width: 350px;">
+      <h2 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+        {{i.username}}
+      </h2>
+      <img src="{{i.image.url}}" width="300px" style="margin-left: auto;margin-right: auto;display: block">
+        
+      <h5 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin-top: 15px">
+        {{i.caption}}
+      </h5>
+      {% if user.get_username in i.likedby %}
+      <button id="like_button" style="border: none; padding: none; background: none; outline: none;" onclick="Like('{{i.id}}')"> <img src="{% static 'liked.png' %}" style="height: 34px; width:40px" id="{{i.id}}"></button>
+      {% else %}
+      <button id="like_button" style="border: none; padding: none; background: none; outline: none;" onclick="Like('{{i.id}}')"> <img src="{% static 'like.png' %}" style="height: 34px; width:40px" id="{{i.id}}"></button>
+      {% endif %}
+      <button id="comment{{i.id}}" class="btn" style="background-color: white; width: 200px" onclick="commentbox('{{i.id}}')">Comment</button>
+      <input type="text" class="form-control" style="display: none; margin-top: 10px" id="comment_box{{i.id}}" placeholder="Add a comment" >
+      <div id = "comment_items" style="display: none;">
+      {% for a in comment %}
+        {% if a.postid == i.id %}
+        <div class="card">
+          <div class="card-body">
+            {{a.user}}: {{a.comment}}
+          </div>
+        </div>
+          
+        {% endif %}
+      {% endfor %}
+    </div>
+      <div class="card" id="new_comment{{i.id}}" style="display: none;">
+        <div class="card-body" id="n_comment{{i.id}}">
+          {{i.user}}: {{a.comment}}
+        </div>
+      </div>
+
+      
+    </div>
+
+    {% endfor %}
+    
+
+    {% if posts.has_next %}
+    <div style="text-align: center;">
+
+        <a href="?page={{posts.next_page_number}}"><button class="btn btn-primary">Next page</button></a>
+    </div>
+    {% endif %}
+    
+    <!--<button class="btn btn-primary" style="margin-top: 100px;" onclick="Click()">CLICK</button>
+    <p id="demo"></p>-->
+  </div>
+  
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script>
+  $('#post_upload').submit(function(e){
+    e.preventDefault();
+    $form = $(this)
+    var formData = new FormData(this);
+    $.ajax({
+        url: 'post',
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            $('.error').remove();
+            console.log(response)
+            if(response.error){
+                $.each(response.errors, function(name, error){
+                    error = '<small class="text-muted error">' + error + '</small>'
+                    $form.find('[name=' + name + ']').after(error);
+                })
+            }
+            else{
+                document.getElementById('post_form').innerHTML = 'post has been added'
+            }
+        },
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+});
+
+
+function commentbox(val){
+  
+  console.log(val)
+  var commentbox = "new_comment" + val
+  var n_commentbox = "n_comment" + val
+  var comment = "comment_box" + val
+  console.log(comment);
+  document.getElementById(comment).style.display = 'block';
+  document.getElementById('comment_items').style.display = 'block';
+  var cmd = document.getElementById(comment);
+  cmd.addEventListener('keydown', function(e){
+    if(e.keyCode == 13){
+      console.log('comment entered');
+      $.ajax({
+        method: 'POST',
+        data: {value: cmd.value,id: val},
+        url: 'comment',
+        
+        success: function (data){
+            console.log(data.value);
+            document.getElementById(n_commentbox).innerHTML = data.user + ': ' + cmd.value;
+            document.getElementById(commentbox).style.display = 'block';
+            document.getElementById(comment).value = "";
+        }
+      });
+    
+  
+    }
+  });
+  
+  
+}
+
+function Click() {
+    console.log('button clicked')
+    document.getElementById("demo").innerHTML = "Hello World";
+      $.ajax({
+        method: 'GET',
+        url: 'btntest',
+        success: function (data){
+            console.log(data.value)
+        }
+      })
+    }
+
+function Like(id){
+  
+  if(document.getElementById(id).src == "http://127.0.0.1:8000/static/like.png"){
+    console.log('like')
+    var postid = id
+    $.ajax({
+      method: 'POST',
+      data: {value: id},
+      url: 'like',
+      
+      success: function (data){
+          console.log(data.value)
+      }
+    })
+    document.getElementById(id).src = "{% static 'liked.png' %}"  
+  }
+  else if (document.getElementById(id).src == "http://127.0.0.1:8000/static/liked.png"){
+    console.log('unlike')
+    $.ajax({
+      method: 'POST',
+      data: {value: id},
+      url: 'unlike',
+      
+      success: function (data){
+          console.log(data.value)
+      }
+    })
+    document.getElementById(id).src = "{% static 'like.png' %}"
+  }
+  
+}
+</script>
+{% endblock %}
+

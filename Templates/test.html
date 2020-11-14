@@ -1,0 +1,23 @@
+<!--<form action="messages" method="POST">
+    {% csrf_token %}
+<select name="username">
+    {% for i in users %}
+        <option value="{{i.username}}">{{i.username}}</option>
+    {% endfor %}
+</select>
+<input name="message" placeholder="Type your message" type="text">
+<button type="submit">Send</button>
+</form>
+-->
+
+{% for i in messages %}
+
+{% if user == i.sender %} 
+{{i.sender}}: {{i.message}} <br>
+{% elif user.username == i.receiver %}
+{{i.sender}}: {{i.message}} <br>
+{% endif %}
+
+{% endfor %}
+
+

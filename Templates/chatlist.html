@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="conatainer-fluid" style="margin-top: 175px; margin-bottom: 50px; text-align: center">
+
+    <h3>Checkout your friends</h3>
+</div>
+<div class="list-group">
+    {% for i in all_users %}
+    <a href="messages/{{i.id}}" class="list-group-item list-group-item-action">{{i.username}}</a>
+
+    {% endfor %}
+    
+</div>
+
+{% endblock %}

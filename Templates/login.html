@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="login" style = 'margin-top: 100px;' class= 'container' method="POST">
+    {% csrf_token %}
+    <h2 style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;margin-bottom: 30px;">BeSocial</h2>
+    <div class="form-group">
+        <input type = "text" name="userid" placeholder="User id" class="form-control" required style="width: 35%;">
+    </div>
+    <div class="form-group">
+        <input type="password" name="password" placeholder="Password" class="form-control" style="width: 35%;">
+    </div>
+    
+    <div class="form-group">
+        <button class="btn btn-primary" type="submit">Login</button>
+        
+    </div>
+
+    <h4>
+        New user ?
+        Click <a href="/signup">here</a> to signup
+    </h4>
+</form>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,52 @@
+
+{% load static %}
+
+
+Refresh to load new messages<br>
+<a style="color: white;" href="/">BeSocial</a>
+<head>
+    <meta http-equiv="refresh" content="30">
+</head>
+<link rel="stylesheet" href="{% static 'chat.css' %}" type="text/css">
+<div class="all_elements">
+<div id="heading">
+    <h2>
+        <div class="chat_heading">
+            {{c_user}}
+        </div>
+    </h2>
+    
+</div>
+<div class="chat_body">
+    {% for i in messages %}
+        {% if user != i.sender %}
+        <div class="messages" style="width: 60%;">
+            <div class="msg_text">
+                {{i.message}}
+            </div>
+        </div>
+        {% elif user == i.sender %}
+        <div class="messages" style="width: 60%; margin-left: 35%">
+            <div class="msg_text">
+                {{i.message}}
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+<div class="new_message">
+    <form action="/send_message/{{c_user}}" method="POST">
+        {% csrf_token %}
+        <div class="msg_form">
+            <div class="message_box">
+                <!--<input type="text" placeholder="Name" name="name">-->
+                <input type="text" placeholder="Type your message" name="message">
+            </div>
+            <div class="send">
+                <input type="submit" value="send">
+            </div>
+        </div>
+    </form>
+</div>
+
+</div>
